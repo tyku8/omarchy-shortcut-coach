@@ -1,0 +1,18 @@
+{
+  "title": "Shortcut Coach",
+  "range.week": "7 days",
+  "range.month": "30 days",
+  "range.all": "All time",
+  "hero.presses": { "one": "%1 shortcut press", "other": "%1 shortcut presses" },
+  "hero.coverage": "of shortcuts used",
+  "section.top": "Most used",
+  "section.recs": "Worth learning",
+  "recs.more": "More ideas",
+  "rec.popularUnused": "Popular · not used yet",
+  "rec.unused": "Not used yet",
+  "rec.used": { "one": "Used once · not a habit yet", "other": "Used %1 times · not a habit yet" },
+  "times": { "one": "%1×", "other": "%1×" },
+  "empty.tracking": "Tracking isn't active yet. Run hyprctl reload, then use a few shortcuts.",
+  "empty.presses": "No shortcuts recorded in this range yet.",
+  "empty.recs": "Every shortcut here is already a habit. Nice."
+}

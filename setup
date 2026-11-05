@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Install (or remove) the Shortcut Coach tracker in ~/.config/hypr/hyprland.lua.
+#
+#   ./setup           add the tracker line before Omarchy's defaults, then reload Hyprland
+#   ./setup --remove  take it out again, then reload Hyprland
+#
+# A timestamped backup of hyprland.lua is written before any change.
+
+set -euo pipefail
+
+config="${HYPRLAND_LUA:-$HOME/.config/hypr/hyprland.lua}"
+plugin_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+tracker="$plugin_dir/hypr/tracker.lua"
+marker="-- Shortcut Coach"
+anchor='require("default.hypr.omarchy")'
+
+[[ -f $config ]] || { echo "No $config found." >&2; exit 1; }
+[[ -f $tracker ]] || { echo "No tracker at $tracker." >&2; exit 1; }
+
+reload() {
+  if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; then
+    hyprctl reload >/dev/null && echo "Reloaded Hyprland."
+  fi
+}
+
+if [[ ${1:-} == "--remove" ]]; then
+  if ! grep -qF -- "$marker" "$config"; then
+    echo "Tracker is not installed in $config."
+    exit 0
+  fi
+  cp "$config" "$config.bak.$(date +%s)"
+  # Drop the marker comment block and the dofile line that follows it.
+  awk -v marker="$marker" '
+    index($0, marker) == 1 { state = 1; next }
+    state == 1 && /^--/ { next }
+    state == 1 && /shortcut-coach/ { state = 2; next }
+    state == 2 && /^$/ { state = 0; next }
+    { state = 0; print }
+  ' "$config" > "$config.tmp" && mv "$config.tmp" "$config"
+  echo "Removed the Shortcut Coach tracker from $config."
+  reload
+  exit 0
+fi
+
+if grep -qF "shortcut-coach" "$config"; then
+  echo "Tracker is already installed in $config."
+  exit 0
+fi
+
+if ! grep -qF "$anchor" "$config"; then
+  echo "Could not find $anchor in $config; add this line before your Omarchy defaults load:" >&2
+  echo "  pcall(dofile, \"$tracker\")" >&2
+  exit 1
+fi
+
+cp "$config" "$config.bak.$(date +%s)"
+# Paths under $HOME are written relative to it so the line survives a renamed home.
+tracker_expr="\"$tracker\""
+if [[ $tracker == "$HOME"/* ]]; then
+  tracker_expr="os.getenv(\"HOME\") .. \"${tracker#"$HOME"}\""
+fi
+
+awk -v anchor="$anchor" -v expr="$tracker_expr" -v marker="$marker" '
+  !done && index($0, anchor) == 1 {
+    print marker ": count which shortcuts get used (only bound shortcuts, never"
+    print "-- typing). Must run before the defaults so it sees every bind. Remove with"
+    print "-- the plugin'"'"'s ./setup --remove."
+    print "pcall(dofile, " expr ")"
+    print ""
+    done = 1
+  }
+  { print }
+' "$config" > "$config.tmp" && mv "$config.tmp" "$config"
+
+echo "Installed the Shortcut Coach tracker in $config."
+reload

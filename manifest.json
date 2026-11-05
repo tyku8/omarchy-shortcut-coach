@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "tyku8.shortcut-coach",
+  "name": "Shortcut Coach",
+  "version": "1.0.0",
+  "author": "Justinas Posiunas",
+  "license": "MIT",
+  "description": "Counts the Hyprland shortcuts you use and suggests popular ones that aren't a habit yet",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Shortcut Coach",
+    "description": "Most-used shortcuts and ones worth learning",
+    "category": "Info",
+    "allowMultiple": false,
+    "defaultSection": "centerEnd"
+  }
+}
