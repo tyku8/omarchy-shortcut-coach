@@ -17,6 +17,6 @@
     "description": "Most-used shortcuts and ones worth learning",
     "category": "Info",
     "allowMultiple": false,
-    "defaultSection": "centerEnd"
+    "defaultSection": "center"
   }
 }
